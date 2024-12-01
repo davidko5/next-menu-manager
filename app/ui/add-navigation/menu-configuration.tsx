@@ -7,10 +7,33 @@ import { MenuItemType } from '@/app/lib/types';
 import { nanoid } from 'nanoid';
 import { MenuItemViewing } from './menu-item-viewing';
 import clsx from 'clsx';
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { SmartPointerSensor } from '@/app/lib/dnd-smart-pointer-sensor';
 
 export function MenuConfiguration() {
   const [menuItems, setMenuItems] = useState<Array<MenuItemType>>([]);
   console.log(menuItems);
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+    useSensor(SmartPointerSensor),
+  );
 
   const addMenuItemCreation = (parentId?: string) => {
     setMenuItems([
@@ -48,6 +71,25 @@ export function MenuConfiguration() {
     setMenuItems((prev) => prev.filter((el) => el.id !== id));
   };
 
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      setMenuItems((items) => {
+        // const oldIndex = items.indexOf(active.id);
+        // const newIndex = items.indexOf(over.id);
+        const oldIndex = items.indexOf(
+          items.find((i) => i.id === active.id) || ({} as MenuItemType)
+        );
+        const newIndex = items.indexOf(
+          items.find((i) => i.id === over?.id) || ({} as MenuItemType)
+        );
+
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  }
+
   return (
     <div className='px-6 py-5 border-solid border border-borderPrimary rounded-lg bg-primaryBg mt-5'>
       <h2 className='text-textPrimary text-lg font-bold mb-3'>Pozycje menu</h2>
@@ -72,67 +114,77 @@ export function MenuConfiguration() {
           </button>
         </div>
       ) : (
-        // Menu items list.
-        menuItems
-          .filter((i) => i.parentId === '')
-          .map((item, index) => (
-            <div key={index}>
-              {item.mode === 'creating' && index === 0 ? (
-                <MenuItemManage
-                  item={item}
-                  saveMenuItem={saveMenuItem}
-                  deleteMenuItem={deleteMenuItem}
-                />
-              ) : (
-                (item.mode === 'creating' || item.mode === 'editing') && (
-                  <div
-                    className={clsx(
-                      'border-x border-x-borderPrimary border-b border-b-borderSecondary bg-secondaryBg px-6 py-4',
-                      {
-                        'border-t border-t-borderPrimary rounded-t-lg':
-                          index === 0,
-                      }
-                    )}
-                  >
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={menuItems}
+            strategy={verticalListSortingStrategy}
+          >
+            {/* // Menu items list. */}
+            {menuItems
+              .filter((i) => i.parentId === '')
+              .map((item, index) => (
+                <div key={index}>
+                  {item.mode === 'creating' && index === 0 ? (
                     <MenuItemManage
                       item={item}
                       saveMenuItem={saveMenuItem}
                       deleteMenuItem={deleteMenuItem}
                     />
-                  </div>
-                )
-              )}
+                  ) : (
+                    (item.mode === 'creating' || item.mode === 'editing') && (
+                      <div
+                        className={clsx(
+                          'border-x border-x-borderPrimary border-b border-b-borderSecondary bg-secondaryBg px-6 py-4',
+                          {
+                            'border-t border-t-borderPrimary rounded-t-lg':
+                              index === 0,
+                          }
+                        )}
+                      >
+                        <MenuItemManage
+                          item={item}
+                          saveMenuItem={saveMenuItem}
+                          deleteMenuItem={deleteMenuItem}
+                        />
+                      </div>
+                    )
+                  )}
 
-              {/* // Menu item in viewing mode */}
-              <MenuItemViewing
-                // TODO: replace item with itemID
-                item={item}
-                menuItems={menuItems}
-                turnOnEditingMode={turnOnEditingMode}
-                addSubItem={addMenuItemCreation}
-                deleteMenuItem={deleteMenuItem}
-                saveMenuItem={saveMenuItem}
-              />
+                  {/* // Menu item in viewing mode */}
+                  <MenuItemViewing
+                    item={item}
+                    menuItems={menuItems}
+                    turnOnEditingMode={turnOnEditingMode}
+                    addSubItem={addMenuItemCreation}
+                    deleteMenuItem={deleteMenuItem}
+                    saveMenuItem={saveMenuItem}
+                  />
 
-              {/* Menu items list footer with add-button, as per design should be displayed after at least one item is created */}
-              {/* And as per design if there is only one item in creating we don't show this footer */}
-              {index ===
-                menuItems.filter((i) => i.parentId === '').length - 1 &&
-                !(
-                  menuItems.length === 1 && menuItems[0].mode === 'creating'
-                ) && (
-                  <div className='bg-figmaBg border-b border-x border-borderPrimary rounded-b-lg px-6 py-5'>
-                    {/* Append one more MenuItem in editing mode */}
-                    <button
-                      onClick={() => addMenuItemCreation()}
-                      className='btnSecondary'
-                    >
-                      Dodaj pozycję menu
-                    </button>
-                  </div>
-                )}
-            </div>
-          ))
+                  {/* Menu items list footer with add-button, as per design should be displayed after at least one item is created */}
+                  {/* And as per design if there is only one item in creating we don't show this footer */}
+                  {index ===
+                    menuItems.filter((i) => i.parentId === '').length - 1 &&
+                    !(
+                      menuItems.length === 1 && menuItems[0].mode === 'creating'
+                    ) && (
+                      <div className='bg-figmaBg border-b border-x border-borderPrimary rounded-b-lg px-6 py-5'>
+                        {/* Append one more MenuItem in editing mode */}
+                        <button
+                          onClick={() => addMenuItemCreation()}
+                          className='btnSecondary'
+                        >
+                          Dodaj pozycję menu
+                        </button>
+                      </div>
+                    )}
+                </div>
+              ))}
+          </SortableContext>
+        </DndContext>
       )}
     </div>
   );

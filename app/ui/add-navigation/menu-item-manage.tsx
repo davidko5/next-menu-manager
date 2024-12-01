@@ -49,7 +49,8 @@ export function MenuItemManage({
             onChange={(e) =>
               onInputChange({ name: 'label', value: e.target.value })
             }
-            label='Nazwa'
+            label={'Nazwa'}
+            id={item.id}
             placeholder='np. Promocje'
           />
           <SearchTextInput
@@ -58,6 +59,7 @@ export function MenuItemManage({
               onInputChange({ name: 'url', value: e.target.value })
             }
             label='Link'
+            id={item.id}
             placeholder='Wlej lub wyszukaj'
           />
         </div>
@@ -65,7 +67,7 @@ export function MenuItemManage({
           <button
             onClick={handleDeleteMenuItem}
             type='button'
-            className='iconBtn'
+            className='iconBtn z-10'
           >
             <DeleteBucketIcon />
           </button>
