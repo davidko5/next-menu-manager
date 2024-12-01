@@ -9,14 +9,14 @@ const ArrowLeftIcon = React.forwardRef<SVGSVGElement, IconProps>(
       ref={ref}
       {...props}
       className={cn('', className)}
-      width='24'
-      height='24'
-      viewBox='0 0 24 24'
+      width='16'
+      height='16'
+      viewBox='0 0 16 16'
       fill='none'
       xmlns='http://www.w3.org/2000/svg'
     >
       <path
-        d='M19 12H5M5 12L12 19M5 12L12 5'
+        d='M15 8H1M1 8L8 15M1 8L8 1'
         stroke='currentColor'
         strokeWidth='2'
         strokeLinecap='round'

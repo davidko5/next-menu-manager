@@ -12,3 +12,21 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@layer components {
+  .inputLabel {
+    @apply block mb-1.5 text-sm font-medium text-textSecondary;
+  }
+  .btnPrimaryWithIcon {
+    @apply text-white bg-buttonPrimaryBg hover:bg-buttonPrimaryHoverBg focus:ring-4 focus:outline-none focus:ring-buttonPrimaryFocusRing font-semibold rounded-lg text-sm px-3.5 py-2.5 text-center inline-flex items-center mt-6 mb-2;
+  }
+  .btnSecondary {
+    @apply text-buttonSecondaryFg bg-buttonSecondaryBg border border-buttonSecondaryBorder focus:outline-none hover:bg-buttonSecondaryHoverBg focus:bg-buttonSecondaryHoverBg focus:ring-4 focus:ring-buttonSecondaryRing disabled:text-buttonSecondaryDisabledFg disabled:bg-secondaryBg disabled:border-borderSecondary font-semibold rounded-lg text-sm px-3.5 py-2.5;
+  }
+  .btnSecondaryColor {
+    @apply text-buttonSecondaryColorFg bg-buttonSecondaryColorBg border border-buttonSecondaryColorBorder focus:outline-none hover:bg-buttonSecondaryColorHoverBg focus:bg-buttonSecondaryColorHoverBg focus:ring-4 focus:ring-buttonSecondaryColorRing disabled:text-buttonSecondaryColorDisabledFg disabled:bg-buttonSecondaryColorDisabledBg disabled:border-borderSecondary font-semibold rounded-lg text-sm px-3.5 py-2.5;
+  }
+  .iconBtn {
+    @apply text-buttonTertiaryFg hover:bg-buttonSecondaryHoverBg focus:bg-buttonSecondaryHoverBg focus:ring-2 focus:outline-none focus:ring-buttonSecondaryRing rounded-full p-2.5 text-center inline-flex items-center;
+  }
+}
