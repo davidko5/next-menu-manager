@@ -85,7 +85,7 @@ export function MenuItemManage({
           type='button'
           className='btnSecondaryColor'
         >
-          Dodaj
+          {item.mode === 'editing' ? 'Edytuj' : 'Dodaj'}
         </button>
       </div>
     </div>

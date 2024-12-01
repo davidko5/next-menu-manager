@@ -12,10 +12,10 @@ export function MenuConfiguration() {
   const [menuItems, setMenuItems] = useState<Array<MenuItemType>>([]);
   console.log(menuItems);
 
-  const addMenuItemCreation = () => {
+  const addMenuItemCreation = (parentId?: string) => {
     setMenuItems([
       ...menuItems,
-      { id: nanoid(), parentId: '', label: '', mode: 'creating' },
+      { id: nanoid(), parentId: parentId || '', label: '', mode: 'creating' },
     ]);
   };
 
@@ -52,7 +52,8 @@ export function MenuConfiguration() {
     <div className='px-6 py-5 border-solid border border-borderPrimary rounded-lg bg-primaryBg mt-5'>
       <h2 className='text-textPrimary text-lg font-bold mb-3'>Pozycje menu</h2>
 
-      {!menuItems.length ? (
+      {/* Placeholder when there is yet no items */}
+      {!menuItems.filter((i) => i.parentId === '').length ? (
         <div className='text-center border border-solid rounded-lg border-borderSecondary bg-secondaryBg py-6'>
           <h3 className='text-textPrimary text-base font-semibold'>
             Menu jest puste
@@ -63,61 +64,75 @@ export function MenuConfiguration() {
           <button
             type='button'
             className='btnPrimaryWithIcon'
-            // Here we just initialize the menuItems state with an empty array to bring creation form
-            onClick={addMenuItemCreation}
+            onClick={() => {
+              addMenuItemCreation();
+            }}
           >
             <PlusCircledIcon className='mr-1' /> Dodaj pozycję menu
           </button>
         </div>
       ) : (
-        menuItems.map((item, index) => (
-          <div key={index}>
-            {item.mode === 'creating' && index === 0 ? (
-              <MenuItemManage
-                item={item}
-                saveMenuItem={saveMenuItem}
-                deleteMenuItem={deleteMenuItem}
-              />
-            ) : item.mode === 'creating' || item.mode === 'editing' ? (
-              <div
-                className={clsx(
-                  'border-x border-x-borderPrimary border-b border-b-borderSecondary bg-secondaryBg px-6 py-4',
-                  {
-                    'border-t border-t-borderPrimary rounded-t-lg': index === 0,
-                  }
-                )}
-              >
+        // Menu items list.
+        menuItems
+          .filter((i) => i.parentId === '')
+          .map((item, index) => (
+            <div key={index}>
+              {item.mode === 'creating' && index === 0 ? (
                 <MenuItemManage
                   item={item}
                   saveMenuItem={saveMenuItem}
                   deleteMenuItem={deleteMenuItem}
                 />
-              </div>
-            ) : (
-              // Menu item in viewing mode
-              <MenuItemViewing
-                itemIndex={index}
-                item={item}
-                turnOnEditingMode={turnOnEditingMode}
-                deleteMenuItem={deleteMenuItem}
-              />
-            )}
-            {/* Menu items list footer with add-button, as per design should be displayed after at least one item is created */}
-            {/* And as per design if there is only one item in creating we don't show this footer */}
-            {index === menuItems.length - 1 &&
-              !(menuItems.length === 1 && menuItems[0].mode === 'creating') && (
-                <div className='bg-figmaBg border-b border-x border-borderPrimary rounded-b-lg px-6 py-5'>
-                  {/* Append one more MenuItem in editing mode */}
-                  <button
-                    onClick={addMenuItemCreation}
-                    className='btnSecondary'
+              ) : (
+                (item.mode === 'creating' || item.mode === 'editing') && (
+                  <div
+                    className={clsx(
+                      'border-x border-x-borderPrimary border-b border-b-borderSecondary bg-secondaryBg px-6 py-4',
+                      {
+                        'border-t border-t-borderPrimary rounded-t-lg':
+                          index === 0,
+                      }
+                    )}
                   >
-                    Dodaj pozycję menu
-                  </button>
-                </div>
+                    <MenuItemManage
+                      item={item}
+                      saveMenuItem={saveMenuItem}
+                      deleteMenuItem={deleteMenuItem}
+                    />
+                  </div>
+                )
               )}
-          </div>
-        ))
+
+              {/* // Menu item in viewing mode */}
+              <MenuItemViewing
+                // TODO: replace item with itemID
+                item={item}
+                menuItems={menuItems}
+                turnOnEditingMode={turnOnEditingMode}
+                addSubItem={addMenuItemCreation}
+                deleteMenuItem={deleteMenuItem}
+                saveMenuItem={saveMenuItem}
+              />
+
+              {/* Menu items list footer with add-button, as per design should be displayed after at least one item is created */}
+              {/* And as per design if there is only one item in creating we don't show this footer */}
+              {index ===
+                menuItems.filter((i) => i.parentId === '').length - 1 &&
+                !(
+                  menuItems.length === 1 && menuItems[0].mode === 'creating'
+                ) && (
+                  <div className='bg-figmaBg border-b border-x border-borderPrimary rounded-b-lg px-6 py-5'>
+                    {/* Append one more MenuItem in editing mode */}
+                    <button
+                      onClick={() => addMenuItemCreation()}
+                      className='btnSecondary'
+                    >
+                      Dodaj pozycję menu
+                    </button>
+                  </div>
+                )}
+            </div>
+          ))
       )}
     </div>
   );
