@@ -1,10 +1,37 @@
+'use client';
 import Link from 'next/link';
 import ArrowLeftIcon from '../ui/icons/arrow-left';
 import { MenuConfiguration } from '../ui/add-navigation/menu-configuration';
 import { TextInput } from '../ui/common/text-input';
 import { SearchTextInput } from '../ui/common/search-text-input';
+import { useState } from 'react';
+import { z } from 'zod';
+
+const menuSchema = z.object({
+  menuLabel: z.string().nonempty('Label is required'), // Ensures label is not empty
+  url: z.string().nonempty('Link is required'),
+});
 
 export default function Home() {
+  const [menu, setMenu] = useState({ menuLabel: '', url: '' });
+
+  const onMenuChange = (name: 'menuLabel' | 'url', value: string) => {
+    setMenu((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const clearMenu = () => {
+    setMenu({ menuLabel: '', url: '' });
+  };
+
+  const saveMenu = () => {
+    const validationResult = menuSchema.safeParse(menu);
+
+    if (!validationResult.success) {
+      alert(validationResult.error.errors[0].message); // Show the first validation error
+      return;
+    } else alert('Success');
+  };
+
   return (
     <div className='p-6'>
       <Link
@@ -23,25 +50,37 @@ export default function Home() {
         <h2 className='text-textPrimary text-lg font-bold mb-3'>Nazwa</h2>
 
         {/* Menu input */}
-        <TextInput label='Menu' placeholder='np. Promocje'  />
-        
+        <TextInput
+          value={menu.menuLabel}
+          onChange={(e) => {
+            onMenuChange('menuLabel', e.target.value);
+          }}
+          label='Menu'
+          placeholder='np. Promocje'
+        />
+
         {/* Link input with icon */}
-       <SearchTextInput label='Link' placeholder='Wklej lub wyszukaj' />
+        <SearchTextInput
+          value={menu.url}
+          onChange={(e) => {
+            onMenuChange('url', e.target.value);
+          }}
+          label='Link'
+          placeholder='Wklej lub wyszukaj'
+        />
       </div>
 
       {/* Main card with menu configuration */}
       <MenuConfiguration />
 
       <div className='flex justify-end mt-5'>
-        <button
-          type='button'
-          className='btnSecondary'
-        >
+        <button onClick={clearMenu} type='button' className='btnSecondary'>
           Anuluj
         </button>
         <button
+          onClick={saveMenu}
           type='button'
-          disabled
+          // disabled={!menu.menuLabel}
           className='btnSecondary ml-2'
         >
           Zapisz

@@ -1,5 +1,3 @@
-'use client';
-
 import { useState } from 'react';
 import PlusCircledIcon from '../icons/plus-circled';
 import { MenuItemManage } from './menu-item-manage';
@@ -23,16 +21,24 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { SmartPointerSensor } from '@/app/lib/dnd-smart-pointer-sensor';
+import { z } from 'zod';
+
+const menuItemSchema = z.object({
+  id: z.string(),
+  parentId: z.string(),
+  label: z.string().nonempty('Label is required'), // Ensures label is not empty
+  mode: z.enum(['creating', 'viewing', 'editing']),
+  url: z.string().optional(),
+});
 
 export function MenuConfiguration() {
   const [menuItems, setMenuItems] = useState<Array<MenuItemType>>([]);
-  console.log(menuItems);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
-    useSensor(SmartPointerSensor),
+    useSensor(SmartPointerSensor)
   );
 
   const addMenuItemCreation = (parentId?: string) => {
@@ -44,6 +50,13 @@ export function MenuConfiguration() {
 
   // Saves menu item on it's own position after creation or editing
   const saveMenuItem = (item: MenuItemType) => {
+    const validationResult = menuItemSchema.safeParse(item);
+
+    if (!validationResult.success) {
+      alert(validationResult.error.errors[0].message); // Show the first validation error
+      return;
+    }
+
     setMenuItems((prev) => {
       const index = prev.findIndex((el) => el.id === item.id);
 
@@ -76,8 +89,6 @@ export function MenuConfiguration() {
 
     if (active.id !== over?.id) {
       setMenuItems((items) => {
-        // const oldIndex = items.indexOf(active.id);
-        // const newIndex = items.indexOf(over.id);
         const oldIndex = items.indexOf(
           items.find((i) => i.id === active.id) || ({} as MenuItemType)
         );
