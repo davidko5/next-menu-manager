@@ -23,13 +23,10 @@ export default function Home() {
     setMenu({ menuLabel: '', url: '' });
   };
 
-  const saveMenu = () => {
-    const validationResult = menuSchema.safeParse(menu);
+  const validationResult = menuSchema.safeParse(menu);
 
-    if (!validationResult.success) {
-      alert(validationResult.error.errors[0].message); // Show the first validation error
-      return;
-    } else alert('Success');
+  const saveMenu = () => {
+    alert('Success');
   };
 
   return (
@@ -80,7 +77,7 @@ export default function Home() {
         <button
           onClick={saveMenu}
           type='button'
-          // disabled={!menu.menuLabel}
+          disabled={!validationResult.success}
           className='btnSecondary ml-2'
         >
           Zapisz

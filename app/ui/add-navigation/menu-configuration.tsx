@@ -40,7 +40,7 @@ export function MenuConfiguration() {
     }),
     useSensor(SmartPointerSensor)
   );
-
+  
   const addMenuItemCreation = (parentId?: string) => {
     setMenuItems([
       ...menuItems,
@@ -149,7 +149,7 @@ export function MenuConfiguration() {
                     (item.mode === 'creating' || item.mode === 'editing') && (
                       <div
                         className={clsx(
-                          'border-x border-x-borderPrimary border-b border-b-borderSecondary bg-secondaryBg px-6 py-4',
+                          'border-x border-x-borderPrimary bg-secondaryBg px-6 py-4',
                           {
                             'border-t border-t-borderPrimary rounded-t-lg':
                               index === 0,
@@ -182,7 +182,7 @@ export function MenuConfiguration() {
                     !(
                       menuItems.length === 1 && menuItems[0].mode === 'creating'
                     ) && (
-                      <div className='bg-figmaBg border-b border-x border-borderPrimary rounded-b-lg px-6 py-5'>
+                      <div className='bg-figmaBg border-b border-x border-borderPrimary border-t border-t-borderSecondary rounded-b-lg px-6 py-5'>
                         {/* Append one more MenuItem in editing mode */}
                         <button
                           onClick={() => addMenuItemCreation()}

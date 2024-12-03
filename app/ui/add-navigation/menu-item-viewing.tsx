@@ -20,8 +20,11 @@ export function MenuItemViewing({
   addSubItem: (parentId?: string) => void;
   saveMenuItem: (item: MenuItemType) => void;
 }) {
-  const itemIndex = menuItems.findIndex((el) => el.id === item.id);
   const childMenuItems = menuItems.filter((el) => el.parentId === item.id);
+  const itemIndex = menuItems.findIndex((el) => el.id === item.id);
+  const parentItems = menuItems.filter((el) => el.parentId === item.parentId);
+  const indexInParensItems = parentItems.findIndex((el) => el.id === item.id);
+  const parentItem = menuItems.find((el) => el.id === item.parentId);
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: item.id });
@@ -44,12 +47,32 @@ export function MenuItemViewing({
       {item.mode === 'viewing' && (
         <div
           className={clsx(
-            'bg-primaryBg border-b border-t border-b-borderSecondary border-t-borderSecondary border-x border-x-borderPrimary  px-6 py-5 flex justify-between',
+            'bg-primaryBg border-b border-b-borderSecondary border-x border-x-borderPrimary  px-6 py-5 flex justify-between',
             {
-              'border-t rounded-t-lg border-t-borderPrimary': itemIndex === 0,
+              // If parent is in editing and it isn't first in parents list
+              'border-t border-t-borderSecondary': parentItem?.mode === 'editing' || indexInParensItems !== 0,
             },
             {
-              'border-l-borderSecondary rounded-bl-lg': item.parentId !== '',
+              // If parent doesn't have parents and is in editing
+              'border-r-0': parentItem?.parentId && parentItem?.mode === 'editing',
+            },
+            {
+              // The first item in the whole list
+              'border-t rounded-t-lg border-t-borderPrimary':
+                itemIndex === 0 && !item.parentId,
+            },
+            {
+              // To be a child
+              'border-l-borderSecondary': item.parentId,
+            },
+            {
+              // To be the last child
+              'rounded-bl-lg':
+                item.parentId && indexInParensItems === parentItems.length - 1,
+            },
+            {
+              // To have no children
+              'border-b-0': !childMenuItems.length,
             }
           )}
         >
@@ -92,6 +115,8 @@ export function MenuItemViewing({
           </div>
         </div>
       )}
+
+      {/* Menu item child elements */}
       {childMenuItems.map((subItem) => (
         <div
           key={subItem.id}
