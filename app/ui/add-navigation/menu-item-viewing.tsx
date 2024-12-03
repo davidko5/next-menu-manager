@@ -46,6 +46,7 @@ export function MenuItemViewing({
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       {item.mode === 'viewing' && (
         <div
+        data-testid='menu-item-viewing-container'
           className={clsx(
             'bg-primaryBg border-b border-b-borderSecondary border-x border-x-borderPrimary  px-6 py-5 flex justify-between',
             {

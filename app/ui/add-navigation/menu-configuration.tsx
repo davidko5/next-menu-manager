@@ -40,7 +40,7 @@ export function MenuConfiguration() {
     }),
     useSensor(SmartPointerSensor)
   );
-  
+
   const addMenuItemCreation = (parentId?: string) => {
     setMenuItems([
       ...menuItems,
@@ -115,6 +115,7 @@ export function MenuConfiguration() {
             W tym menu nie ma jeszcze żadnych linków.
           </p>
           <button
+            data-testid='initial-add-button'
             type='button'
             className='btnPrimaryWithIcon'
             onClick={() => {

@@ -40,7 +40,10 @@ export function MenuItemManage({
   };
 
   return (
-    <div className='bg-primaryBg border border-borderPrimary rounded-lg px-6 py-5'>
+    <div
+      data-testid='menu-item-manage'
+      className='bg-primaryBg border border-borderPrimary rounded-lg px-6 py-5'
+    >
       {/* Form inputs and delete icon-button wrapper */}
       <div className='flex'>
         <div className='flex-1'>
@@ -60,7 +63,7 @@ export function MenuItemManage({
             }
             label='Link'
             id={item.id}
-            placeholder='Wlej lub wyszukaj'
+            placeholder='Wklej lub wyszukaj'
           />
         </div>
         <div className='mt-[12.5px] mr-[16.5px] ml-[28.5px]'>
@@ -83,6 +86,7 @@ export function MenuItemManage({
           Anuluj
         </button>
         <button
+          data-testid='item-manage-confirm-button'
           onClick={handleSaveMenuItem}
           type='button'
           className='btnSecondaryColor'
