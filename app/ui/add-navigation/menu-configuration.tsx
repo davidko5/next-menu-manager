@@ -182,20 +182,23 @@ export function MenuConfiguration() {
     const { active, over } = event;
     setActiveId(null);
     setOverId(null);
-
-    if (active.id !== over?.id && over?.id) {
+    console.log(over?.id);
+    if (active.id !== over?.id) {
       setMenuItems((items) => {
         const oldIndex = items.indexOf(
           items.find((i) => i.id === active.id) || ({} as MenuItemType)
         );
         const newIndex = items.indexOf(
-          items.find((i) => i.id === over.id) || ({} as MenuItemType)
+          items.find((i) => i.id === over?.id) || ({} as MenuItemType)
         );
 
         const itemsEdited = items.map((item) => {
           return item.id === active.id &&
-            !isAncestor(active.id, (over.id || '') as string, items)
-            ? { ...item, parentId: (over.id || '') as string }
+            !isAncestor(active.id, (over?.id || '') as string, items)
+            ? {
+                ...item,
+                parentId: over?.id ? (over.id as string) : '',
+              }
             : item;
         });
 
