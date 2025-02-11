@@ -29,4 +29,12 @@ body {
   .iconBtn {
     @apply text-buttonTertiaryFg hover:bg-buttonSecondaryHoverBg focus:bg-buttonSecondaryHoverBg focus:ring-2 focus:outline-none focus:ring-buttonSecondaryRing rounded-full p-2.5 text-center inline-flex items-center;
   }
+
+  .selected {
+    @apply relative;
+  }
+  .selected::after {
+    content: '';
+    @apply absolute inset-0 bg-blue-300 opacity-30 rounded-md pointer-events-none;
+  }
 }

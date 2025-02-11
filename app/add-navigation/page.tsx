@@ -13,7 +13,7 @@ const menuSchema = z.object({
 });
 
 export default function Home() {
-  const [menu, setMenu] = useState({ menuLabel: '', url: '' });
+  const [menu, setMenu] = useState({ menuLabel: 'Promotions', url: 'good-shop.com/promotions' });
 
   const onMenuChange = (name: 'menuLabel' | 'url', value: string) => {
     setMenu((prev) => ({ ...prev, [name]: value }));

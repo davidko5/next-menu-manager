@@ -3,11 +3,12 @@ import DragIcon from '../icons/drag-icon';
 import clsx from 'clsx';
 import { MenuItemManage } from './menu-item-manage';
 import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 export function MenuItemViewing({
   item,
   menuItems,
+  isOverlay = false,
+  draggedOverId,
   deleteMenuItem,
   turnOnEditingMode,
   addSubItem,
@@ -15,22 +16,31 @@ export function MenuItemViewing({
 }: {
   item: MenuItemType;
   menuItems: MenuItemType[];
+  // Will be used only on DragOverlay
+  isOverlay?: boolean;
+  draggedOverId: string | null;
   deleteMenuItem: (id: string) => void;
   turnOnEditingMode: (id: string) => void;
   addSubItem: (parentId?: string) => void;
   saveMenuItem: (item: MenuItemType) => void;
 }) {
   const childMenuItems = menuItems.filter((el) => el.parentId === item.id);
-  const itemIndex = menuItems.findIndex((el) => el.id === item.id);
   const parentItems = menuItems.filter((el) => el.parentId === item.parentId);
   const indexInParensItems = parentItems.findIndex((el) => el.id === item.id);
   const parentItem = menuItems.find((el) => el.id === item.parentId);
 
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: item.id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    // That was moving items while dragging over them and was breaking the layout in our case. Left here if we decide to return it in the future.
+    // transform: CSS.Translate.toString(transform),
+    transform: 'none',
     transition,
   };
 
@@ -43,24 +53,35 @@ export function MenuItemViewing({
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={clsx({
+        'border-2 border-dashed border-blue-400': draggedOverId === item.id,
+        'selected': isDragging
+      })}
+      {...attributes}
+      {...listeners}
+    >
       {item.mode === 'viewing' && (
         <div
-        data-testid='menu-item-viewing-container'
+          data-testid='menu-item-viewing-container'
           className={clsx(
-            'bg-primaryBg border-b border-b-borderSecondary border-x border-x-borderPrimary  px-6 py-5 flex justify-between',
+            'h-[83px] max-h-[83px] bg-primaryBg border-b border-b-borderSecondary border-x border-x-borderPrimary  px-6 py-5 flex justify-between',
             {
               // If parent is in editing and it isn't first in parents list
-              'border-t border-t-borderSecondary': parentItem?.mode === 'editing' || indexInParensItems !== 0,
+              'border-t border-t-borderSecondary':
+                parentItem?.mode === 'editing' || indexInParensItems !== 0,
             },
             {
               // If parent doesn't have parents and is in editing
-              'border-r-0': parentItem?.parentId && parentItem?.mode === 'editing',
+              'border-r-0':
+                parentItem?.parentId && parentItem?.mode === 'editing',
             },
             {
               // The first item in the whole list
               'border-t rounded-t-lg border-t-borderPrimary':
-                itemIndex === 0 && !item.parentId,
+              indexInParensItems === 0 && !item.parentId,
             },
             {
               // To be a child
@@ -118,34 +139,40 @@ export function MenuItemViewing({
       )}
 
       {/* Menu item child elements */}
-      {childMenuItems.map((subItem) => (
-        <div
-          key={subItem.id}
-          className={clsx('bg-secondaryBg pl-16', {
-            'border-l border-x-borderPrimary': item.parentId === '',
-            'border-r border-x-borderPrimary': subItem.mode !== 'viewing',
-          })}
-        >
-          {subItem.mode !== 'viewing' && (
-            <div className='py-5 pr-6'>
-              <MenuItemManage
-                item={subItem}
-                saveMenuItem={saveMenuItem}
-                deleteMenuItem={deleteMenuItem}
-              />
-            </div>
-          )}
+      {
+        // !isDragging &&
+        childMenuItems.map((subItem) => (
+          <div
+            key={subItem.id}
+            className={clsx('bg-secondaryBg pl-16', {
+              'border-l border-x-borderPrimary': item.parentId === '',
+              'border-r border-x-borderPrimary': subItem.mode !== 'viewing',
+              'bg-transparent border-none': isOverlay,
+            })}
+          >
+            {subItem.mode !== 'viewing' && (
+              <div className='py-5 pr-6'>
+                <MenuItemManage
+                  item={subItem}
+                  saveMenuItem={saveMenuItem}
+                  deleteMenuItem={deleteMenuItem}
+                />
+              </div>
+            )}
 
-          <MenuItemViewing
-            item={subItem}
-            menuItems={menuItems}
-            deleteMenuItem={deleteMenuItem}
-            turnOnEditingMode={turnOnEditingMode}
-            addSubItem={addSubItem}
-            saveMenuItem={saveMenuItem}
-          />
-        </div>
-      ))}
+            <MenuItemViewing
+              isOverlay={isOverlay}
+              item={subItem}
+              menuItems={menuItems}
+              draggedOverId={draggedOverId}
+              deleteMenuItem={deleteMenuItem}
+              turnOnEditingMode={turnOnEditingMode}
+              addSubItem={addSubItem}
+              saveMenuItem={saveMenuItem}
+            />
+          </div>
+        ))
+      }
     </div>
   );
 }
