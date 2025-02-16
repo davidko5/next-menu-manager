@@ -6,6 +6,7 @@ import { nanoid } from 'nanoid';
 import { MenuItemViewing } from './menu-item-viewing';
 import clsx from 'clsx';
 import {
+  ClientRect,
   DndContext,
   DragEndEvent,
   DragOverEvent,
@@ -25,6 +26,7 @@ import {
 } from '@dnd-kit/sortable';
 import { SmartPointerSensor } from '@/app/lib/dnd-smart-pointer-sensor';
 import { z } from 'zod';
+import useMousePosition from '@/app/lib/use-mouse-position.hook';
 
 const menuItemSchema = z.object({
   id: z.string(),
@@ -110,17 +112,16 @@ export function MenuConfiguration() {
     useSensor(SmartPointerSensor)
   );
 
+  const mousePosition = useMousePosition();
+
   const [menuItems, setMenuItems] =
     useState<Array<MenuItemType>>(initialMenuItems);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
-
-  // To avoid issues with dnd-kit on SSR. Using "use client" wasn't working
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-  if (!isClient) return null; // Avoid rendering on the server
+  const [overRect, setOverRect] = useState<ClientRect | null>(null);
+  const [dropPosition, setDropPosition] = useState<
+    'top' | 'middle' | 'bottom' | null
+  >(null);
 
   const addMenuItemCreation = (parentId?: string) => {
     setMenuItems([
@@ -164,7 +165,6 @@ export function MenuConfiguration() {
   const deleteMenuItem = (id: string) => {
     setMenuItems((prev) => prev.filter((el) => el.id !== id));
   };
-
   function handleDragStart(event: DragStartEvent) {
     const { active } = event;
 
@@ -175,6 +175,7 @@ export function MenuConfiguration() {
     const { over } = event;
     if (over) {
       setOverId(over.id as string);
+      setOverRect(over.rect);
     }
   }
 
@@ -182,7 +183,8 @@ export function MenuConfiguration() {
     const { active, over } = event;
     setActiveId(null);
     setOverId(null);
-    console.log(over?.id);
+    setOverRect(null);
+
     if (active.id !== over?.id) {
       setMenuItems((items) => {
         const oldIndex = items.indexOf(
@@ -192,20 +194,50 @@ export function MenuConfiguration() {
           items.find((i) => i.id === over?.id) || ({} as MenuItemType)
         );
 
-        const itemsEdited = items.map((item) => {
+        let itemsEdited = items;
+        // if (dropPosition === 'middle') {
+        itemsEdited = items.map((item) => {
           return item.id === active.id &&
             !isAncestor(active.id, (over?.id || '') as string, items)
             ? {
                 ...item,
-                parentId: over?.id ? (over.id as string) : '',
+                parentId:
+                  dropPosition === 'middle'
+                    ? over?.id
+                      ? (over.id as string)
+                      : ''
+                    : items.find((i) => i.id === over?.id)?.parentId || '',
               }
             : item;
         });
+        // }
 
         return arrayMove(itemsEdited, oldIndex, newIndex);
       });
     }
   }
+
+  useEffect(() => {
+    if (overId === activeId || !overRect) {
+      setDropPosition(null);
+      return;
+    }
+
+    const { top } = overRect;
+    const middleY = top + 83 / 2;
+    const pointerY = mousePosition.y || 0; // Adjusting for the event offset
+
+    if (pointerY < middleY - 20) setDropPosition('top');
+    else if (pointerY > middleY + 20) setDropPosition('bottom');
+    else setDropPosition('middle');
+  }, [mousePosition.y, overId, activeId, overRect]);
+
+  // To avoid issues with dnd-kit on SSR. Using "use client" wasn't working
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  if (!isClient) return null; // Avoid rendering on the server
 
   return (
     <div className='px-6 py-5 border-solid border border-borderPrimary rounded-lg bg-primaryBg mt-5'>
@@ -293,6 +325,7 @@ export function MenuConfiguration() {
                       addSubItem={addMenuItemCreation}
                       deleteMenuItem={deleteMenuItem}
                       saveMenuItem={saveMenuItem}
+                      dropPosition={dropPosition}
                     />
 
                     {/* Menu items list footer with add-button, as per design should be displayed after at least one item is created */}
@@ -329,6 +362,7 @@ export function MenuConfiguration() {
                 addSubItem={addMenuItemCreation}
                 deleteMenuItem={deleteMenuItem}
                 saveMenuItem={saveMenuItem}
+                dropPosition={dropPosition}
               />
             ) : null}
           </DragOverlay>
