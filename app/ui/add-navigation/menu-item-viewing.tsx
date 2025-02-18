@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import DeleteBucketIcon from '../icons/delete-bucket-icon';
 import PlusCircledIcon from '../icons/plus-circled';
 import EditIcon from '../icons/edit';
-import useWindowDimensions from '@/app/lib/use-window-dimentions.hook';
+import useWindowDimensions from '@/app/lib/use-window-dimensions.hook';
 
 export function MenuItemViewing({
   item,
@@ -33,7 +33,6 @@ export function MenuItemViewing({
 }) {
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
-  console.log('isMobile', isMobile);
 
   const boxRef = useRef<HTMLDivElement>(null);
   const [isOverflow, setIsOverflow] = useState(false);
@@ -51,6 +50,7 @@ export function MenuItemViewing({
     // transform: CSS.Translate.toString(transform),
     transform: 'none',
     transition,
+    touchAction: 'none', // Prevent default touch behaviors. Needed for dnd to work on touch devices
   };
 
   const handleDeleteClicked = () => {

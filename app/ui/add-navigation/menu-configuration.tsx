@@ -26,7 +26,7 @@ import {
 } from '@dnd-kit/sortable';
 import { SmartPointerSensor } from '@/app/lib/dnd-smart-pointer-sensor';
 import { z } from 'zod';
-import useMousePosition from '@/app/lib/use-mouse-position.hook';
+import usePointerPosition from '@/app/lib/use-mouse-position.hook';
 
 const menuItemSchema = z.object({
   id: z.string(),
@@ -112,7 +112,7 @@ export function MenuConfiguration() {
     useSensor(SmartPointerSensor)
   );
 
-  const mousePosition = useMousePosition();
+  const mousePosition = usePointerPosition();
 
   const [menuItems, setMenuItems] =
     useState<Array<MenuItemType>>(initialMenuItems);
