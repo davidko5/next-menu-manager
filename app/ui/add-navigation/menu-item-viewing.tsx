@@ -93,7 +93,7 @@ export function MenuItemViewing({
           ref={boxRef}
           data-testid='menu-item-viewing-container'
           className={clsx(
-            'h-[83px] max-h-[83px] bg-primaryBg border-b border-b-borderSecondary border-x border-x-borderPrimary  px-6 py-5 flex justify-between',
+            'h-[83px] max-h-[83px] bg-primaryBg border-b border-b-borderSecondary border-x border-x-borderPrimary  px-6 py-5 flex items-center justify-between',
             {
               'px-[5px]': isMobile,
               // If parent is in editing and it isn't first in parents list
@@ -121,12 +121,12 @@ export function MenuItemViewing({
           )}
         >
           <div
-            className={clsx('w-[calc(100%-89px-34px)] flex items-center', {
-              '!w-[calc(100%-89px)]': isMobile,
+            className={clsx('w-[calc(100%-28px-34px)] flex items-center', {
+              '!w-[calc(100%-28px)]': isMobile || isOverflow,
             })}
           >
             {/* Drag Icon */}
-            {!isMobile && <DragIcon className='text-buttonTertiaryFg mr-3.5' />}
+            {!isMobile && !isOverflow && <DragIcon className='text-buttonTertiaryFg mr-3.5' />}
             <div className='w-full'>
               <h2 className='text-textPrimary text-sm font-semibold whitespace-nowrap overflow-hidden overflow-ellipsis'>
                 {item.label}
@@ -137,7 +137,9 @@ export function MenuItemViewing({
             </div>
           </div>
           <div
-            className='inline-flex rounded-lg shadow-sm'
+            className={clsx('h-[fit-content] rounded-lg shadow-sm', {
+              'inline-flex': !isMobile && !isOverflow,
+            })}
             role='group'
             data-no-dnd='true'
           >
@@ -145,31 +147,43 @@ export function MenuItemViewing({
               onClick={handleDeleteClicked}
               type='button'
               className={clsx(
-                'px-4 py-2 text-sm font-semibold text-buttonSecondaryFg bg-buttonSecondaryBg border border-borderPrimary rounded-s-lg hover:bg-buttonSecondaryHoverBg whitespace-nowrap focus:z-10 focus:outline-none focus:bg-buttonSecondaryHoverBg focus:ring-2 focus:ring-buttonSecondaryRing',
-                { 'iconBtn rounded-r-none px-1 py-0': isOverflow }
+                'px-4 py-2 text-sm font-semibold text-buttonSecondaryFg bg-buttonSecondaryBg border-borderPrimary hover:bg-buttonSecondaryHoverBg whitespace-nowrap focus:z-10 focus:outline-none focus:bg-buttonSecondaryHoverBg focus:ring-2 focus:ring-buttonSecondaryRing',
+                {
+                  'rounded-s-lg border': !isOverflow && !isMobile,
+                  'iconBtn block rounded-b-lg border-t border-x  px-[4px] py-[2px]':
+                    isOverflow || isMobile,
+                }
               )}
             >
-              {isOverflow ? <DeleteBucketIcon /> : 'Usuń'}
+              {isOverflow || isMobile ? <DeleteBucketIcon /> : 'Usuń'}
             </button>
             <button
               onClick={handleEditClicked}
               type='button'
               className={clsx(
-                'px-4 py-2 text-sm font-semibold text-buttonSecondaryFg bg-buttonSecondaryBg border-t border-b border-borderPrimary hover:bg-buttonSecondaryHoverBg whitespace-nowrap focus:z-10 focus:outline-none focus:bg-buttonSecondaryHoverBg focus:ring-2 focus:ring-buttonSecondaryRing',
-                { 'iconBtn rounded-none px-1 py-0 ': isOverflow }
+                'px-4 py-2 text-sm font-semibold text-buttonSecondaryFg bg-buttonSecondaryBg border-borderPrimary hover:bg-buttonSecondaryHoverBg whitespace-nowrap focus:z-10 focus:outline-none focus:bg-buttonSecondaryHoverBg focus:ring-2 focus:ring-buttonSecondaryRing',
+                {
+                  'border-y': !isOverflow && !isMobile,
+                  'iconBtn block rounded-none border px-[4px] py-[2px] ':
+                    isOverflow || isMobile,
+                }
               )}
             >
-              {isOverflow ? <EditIcon /> : 'Edytuj'}
+              {isOverflow || isMobile ? <EditIcon /> : 'Edytuj'}
             </button>
             <button
               onClick={() => addSubItem(item.id)}
               type='button'
               className={clsx(
-                'px-4 py-2 text-sm font-semibold text-buttonSecondaryFg bg-buttonSecondaryBg border border-borderPrimary rounded-e-lg hover:bg-buttonSecondaryHoverBg whitespace-nowrap focus:z-10 focus:outline-none focus:bg-buttonSecondaryHoverBg focus:ring-2 focus:ring-buttonSecondaryRing',
-                { 'iconBtn rounded-l-none px-1 py-0': isOverflow }
+                'px-4 py-2 text-sm font-semibold text-buttonSecondaryFg bg-buttonSecondaryBg  border-borderPrimary  hover:bg-buttonSecondaryHoverBg whitespace-nowrap focus:z-10 focus:outline-none focus:bg-buttonSecondaryHoverBg focus:ring-2 focus:ring-buttonSecondaryRing',
+                {
+                  'rounded-e-lg border': !isOverflow && !isMobile,
+                  'iconBtn block rounded-t-lg border-b border-x  px-[4px] py-[2px]':
+                    isOverflow || isMobile,
+                }
               )}
             >
-              {isOverflow ? <PlusCircledIcon /> : 'Dodaj pozycję menu'}
+              {isOverflow || isMobile ? <PlusCircledIcon /> : 'Dodaj pozycję menu'}
             </button>
           </div>
         </div>
@@ -185,6 +199,7 @@ export function MenuItemViewing({
               'border-l border-x-borderPrimary': item.parentId === '',
               'border-r border-x-borderPrimary': subItem.mode !== 'viewing',
               'bg-transparent border-none': isOverlay,
+              'pl-6': isMobile,
             })}
           >
             {subItem.mode !== 'viewing' && (

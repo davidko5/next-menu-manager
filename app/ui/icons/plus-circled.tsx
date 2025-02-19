@@ -9,7 +9,7 @@ const PlusCircledIcon = React.forwardRef<SVGSVGElement, IconProps>(
       ref={ref}
       {...props}
       className={cn('', className)}
-      width='19'
+      width='18'
       height='20'
       viewBox='0 0 19 20'
       fill='none'

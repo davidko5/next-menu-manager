@@ -3,6 +3,7 @@ import { SearchTextInput } from '../common/search-text-input';
 import { TextInput } from '../common/text-input';
 import DeleteBucketIcon from '../icons/delete-bucket-icon';
 import { MenuItemType } from '@/app/lib/types';
+import useWindowDimensions from '@/app/lib/use-window-dimensions.hook';
 
 export function MenuItemManage({
   item,
@@ -13,6 +14,9 @@ export function MenuItemManage({
   saveMenuItem: (arg: MenuItemType) => void;
   deleteMenuItem: (id: string) => void;
 }) {
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
+
   const [menuItem, setMenuItem] = useState<MenuItemType>(item);
 
   const onInputChange = ({
@@ -45,7 +49,7 @@ export function MenuItemManage({
       className='bg-primaryBg border border-borderPrimary rounded-lg px-6 py-5'
     >
       {/* Form inputs and delete icon-button wrapper */}
-      <div className='flex'>
+      <div className={isMobile ? 'flex flex-col' : 'flex'}>
         <div className='flex-1'>
           <TextInput
             value={menuItem.label}
@@ -66,7 +70,7 @@ export function MenuItemManage({
             placeholder='Wklej lub wyszukaj'
           />
         </div>
-        <div className='mt-[12.5px] mr-[16.5px] ml-[28.5px]'>
+        <div className={ isMobile ? 'mt-3' :'mt-[12.5px] mr-[16.5px] ml-[28.5px]'}>
           <button
             onClick={handleDeleteMenuItem}
             type='button'
