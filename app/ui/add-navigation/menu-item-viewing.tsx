@@ -31,8 +31,8 @@ export function MenuItemViewing({
   saveMenuItem: (item: MenuItemType) => void;
   dropPosition: 'top' | 'middle' | 'bottom' | null;
 }) {
-  const { width } = useWindowDimensions();
-  const isMobile = width < 768;
+  const { width, height } = useWindowDimensions();
+  const isMobile = width < 768 || height < 600;
 
   const boxRef = useRef<HTMLDivElement>(null);
   const [isOverflow, setIsOverflow] = useState(false);
